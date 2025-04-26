@@ -82,8 +82,8 @@ def publish_messages_to_pubsub(docs):
     topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 
     # Split doc_ids into chunks of 10
-    for i in range(0, len(docs), 10):
-        chunk = docs[i:i + 10]
+    for i in range(0, len(docs), 5):
+        chunk = docs[i:i + 5]
         message = {"docs": chunk}
         # Publish the message
         future = publisher.publish(topic_path, json.dumps(message).encode("utf-8"))
