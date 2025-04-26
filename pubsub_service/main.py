@@ -22,7 +22,7 @@ def get_doc_ids_to_parse():
             .where('createdAt', '<', before_1_hour) \
             .where('hasReadScope', '==', True) \
             .order_by('createdAt') \
-            .limit(10)
+            .limit(50)
 
         docs = list(null_query.stream())
         if len(docs) > 0:
@@ -46,7 +46,7 @@ def get_doc_ids_to_parse():
             .where('hasReadScope', '==', True) \
             .where('lastParsedAt', '<', today_start) \
             .order_by('lastParsedAt') \
-            .limit(10)
+            .limit(50)
 
         docs = list(null_query_old.stream())
         if len(docs) > 0:
@@ -81,9 +81,9 @@ def publish_messages_to_pubsub(docs):
     publisher = pubsub_v1.PublisherClient()
     topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 
-    # Split doc_ids into chunks of 50
-    for i in range(0, len(docs), 50):
-        chunk = docs[i:i + 50]
+    # Split doc_ids into chunks of 10
+    for i in range(0, len(docs), 10):
+        chunk = docs[i:i + 10]
         message = {"docs": chunk}
         # Publish the message
         future = publisher.publish(topic_path, json.dumps(message).encode("utf-8"))
