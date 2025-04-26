@@ -26,8 +26,19 @@ def get_doc_ids_to_parse():
 
         docs = list(null_query.stream())
         if len(docs) > 0:
-            doc_ids = [doc.id for doc in docs]
-            return doc_ids
+            user_data = []
+            for doc in docs:
+                doc_dict = doc.to_dict()
+                last_parsed_at = doc_dict.get('lastParsedAt')
+                if last_parsed_at is None:
+                    last_parsed_at = '1001/01/01'
+                else:
+                    last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
+                user_data.append({"doc_id": doc.id, 
+                                  "user_id": doc_dict.get('userId'), 
+                                  "last_parsed_at": last_parsed_at, 
+                                  "user_data": doc_dict})
+            return user_data
 
         # Removing reparsing as of now, will add later
         today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -40,12 +51,24 @@ def get_doc_ids_to_parse():
 
         docs = list(null_query_old.stream())
         if len(docs) > 0:
-            return [doc.id for doc in docs]
-
+            user_data = []
+            for doc in docs:
+                doc_dict = doc.to_dict()
+                last_parsed_at = doc_dict.get('lastParsedAt')
+                if last_parsed_at is None:
+                    last_parsed_at = '1001/01/01'
+                else:
+                    last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
+                user_data.append({
+                    "doc_id": doc.id,
+                    "user_id": doc_dict.get('userId'), 
+                    "last_parsed_at": last_parsed_at, 
+                    "user_data": doc_dict})
+            return user_data
         return []
 
-    doc_ids = fetch_users_to_parse_and_update()
-    return doc_ids
+    user_data = fetch_users_to_parse_and_update()
+    return user_data
 
 def update_last_parsed_at(docs):
     # Update lastParsedAt for these documents in batch
@@ -56,32 +79,32 @@ def update_last_parsed_at(docs):
     batch.commit()
     
 
-def publish_messages_to_pubsub(doc_ids):
+def publish_messages_to_pubsub(docs):
     publisher = pubsub_v1.PublisherClient()
     topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 
     # Split doc_ids into chunks of 50
-    for i in range(0, len(doc_ids), 50):
-        chunk = doc_ids[i:i + 50]
-        message = {"docIds": chunk}
+    for i in range(0, len(docs), 50):
+        chunk = docs[i:i + 50]
+        message = {"docs": chunk}
 
         # Publish the message
         future = publisher.publish(topic_path, json.dumps(message).encode("utf-8"))
         messageid = future.result(timeout = 5)
         print(f"Published message ID: {messageid}")
-        update_last_parsed_at(chunk)
+        update_last_parsed_at([doc.get("doc_id") for doc in chunk])
 
 def main():
     while True:
         try:
             # Fetch docIds using the copied logic
-            doc_ids = get_doc_ids_to_parse()
-            if not doc_ids:
+            docs = get_doc_ids_to_parse()
+            if not docs:
                 print("No docIds to process.")
                 time.sleep(60)
                 continue
             # Publish messages to Pub/Sub
-            publish_messages_to_pubsub(doc_ids)
+            publish_messages_to_pubsub(docs)
         except Exception as e:
             print(f"An error occurred: {e}")
             continue
