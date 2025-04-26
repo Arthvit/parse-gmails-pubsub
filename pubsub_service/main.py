@@ -40,7 +40,7 @@ def get_doc_ids_to_parse():
             return user_data
 
         # Removing reparsing as of now, will add later
-        today_start = datetime.now().replace(hour=16, minute=22, second=0, microsecond=0)
+        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         null_query_old = db.collection('gmail-auth') \
             .where('isValid', '==', True) \
             .where('hasReadScope', '==', True) \
