@@ -31,9 +31,9 @@ def get_doc_ids_to_parse():
                 doc_dict = doc.to_dict()
                 last_parsed_at = doc_dict.get('lastParsedAt')
                 if last_parsed_at is None:
-                    last_parsed_at = '1001/01/01'
+                    last_parsed_at = 0
                 else:
-                    last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
+                    last_parsed_at = int(last_parsed_at.timestamp())
                 user_data.append({"doc_id": doc.id, 
                                   "last_parsed_at": last_parsed_at, 
                                   })
@@ -55,9 +55,9 @@ def get_doc_ids_to_parse():
                 doc_dict = doc.to_dict()
                 last_parsed_at = doc_dict.get('lastParsedAt')
                 if last_parsed_at is None:
-                    last_parsed_at = '1001/01/01'
+                    last_parsed_at = 0
                 else:
-                    last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
+                    last_parsed_at = int(last_parsed_at.timestamp())
                 user_data.append({
                     "doc_id": doc.id,
                     "last_parsed_at": last_parsed_at, 
