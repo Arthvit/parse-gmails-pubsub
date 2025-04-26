@@ -35,13 +35,12 @@ def get_doc_ids_to_parse():
                 else:
                     last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
                 user_data.append({"doc_id": doc.id, 
-                                  "user_id": doc_dict.get('userId'), 
                                   "last_parsed_at": last_parsed_at, 
-                                  "user_data": doc_dict})
+                                  })
             return user_data
 
         # Removing reparsing as of now, will add later
-        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = datetime.now().replace(hour=16, minute=22, second=0, microsecond=0)
         null_query_old = db.collection('gmail-auth') \
             .where('isValid', '==', True) \
             .where('hasReadScope', '==', True) \
@@ -61,9 +60,8 @@ def get_doc_ids_to_parse():
                     last_parsed_at = f'{last_parsed_at.year}/{last_parsed_at.month}/{last_parsed_at.day}'
                 user_data.append({
                     "doc_id": doc.id,
-                    "user_id": doc_dict.get('userId'), 
                     "last_parsed_at": last_parsed_at, 
-                    "user_data": doc_dict})
+                    })
             return user_data
         return []
 
@@ -87,7 +85,6 @@ def publish_messages_to_pubsub(docs):
     for i in range(0, len(docs), 50):
         chunk = docs[i:i + 50]
         message = {"docs": chunk}
-
         # Publish the message
         future = publisher.publish(topic_path, json.dumps(message).encode("utf-8"))
         messageid = future.result(timeout = 5)
