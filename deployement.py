@@ -43,7 +43,7 @@ def delete_existing_migs():
 def create_instance_groups():
     regular_group_cmd = (
         f"gcloud compute instance-groups managed create {REGULAR_MIG} "
-        "--size=5 "
+        "--size=1 "
         f"--template={REGULAR_INSTANCE_TEMPLATE} "
         f"--region={REGION} "
         "--target-distribution-shape=ANY"
