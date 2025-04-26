@@ -22,7 +22,7 @@ def get_doc_ids_to_parse():
             .where('createdAt', '<', before_1_hour) \
             .where('hasReadScope', '==', True) \
             .order_by('createdAt') \
-            .limit(50)
+            .limit(10)
 
         docs = list(null_query.stream())
         if len(docs) > 0:
@@ -46,7 +46,7 @@ def get_doc_ids_to_parse():
             .where('hasReadScope', '==', True) \
             .where('lastParsedAt', '<', today_start) \
             .order_by('lastParsedAt') \
-            .limit(50)
+            .limit(10)
 
         docs = list(null_query_old.stream())
         if len(docs) > 0:
