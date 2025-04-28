@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from firebase_admin import firestore
 import json
 import time
+import pytz
 
 # Pub/Sub configuration
 PROJECT_ID = "rupiseva"
@@ -41,7 +42,10 @@ def get_doc_ids_to_parse():
             return user_data
 
         # Removing reparsing as of now, will add later
-        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)-timedelta(hours=5, minutes=30)
+        ist = pytz.timezone('Asia/Kolkata')
+        now_ist = datetime.now(ist)
+        today_start_ist = now_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = today_start_ist.astimezone(pytz.utc)
         null_query_old = db.collection('gmail-auth') \
             .where('isValid', '==', True) \
             .where('hasReadScope', '==', True) \

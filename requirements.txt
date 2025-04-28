@@ -17,3 +17,4 @@ protobuf==4.25.3
 rsa==4.9
 uritemplate==4.1.1
 urllib3==2.2.2
+pytz==2025.2
