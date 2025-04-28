@@ -50,51 +50,12 @@ def create_instance_groups():
     )
     run_command(regular_group_cmd)
 
-def configure_autoscaler():
-
-    autoscaler_cmd = (
-        f"gcloud compute instance-groups managed set-autoscaling {REGULAR_MIG} "
-        f"--region={REGION} "
-        "--min-num-replicas=1 "
-        "--max-num-replicas=1 "
-        "--cool-down-period=300 "
-        "--mode=on"
-    )
-    run_command(autoscaler_cmd)
-
-def configure_autoscaler_schedule():
-    # Schedule to scale UP to 1 at 12:00 AM every day
-    up_schedule_cmd = (
-        f"gcloud compute instance-groups managed update-autoscaler {REGULAR_MIG} "
-        f"--region={REGION} "
-        "--update-schedule "
-        "schedule=gmail-parsing-pubsub-startup-schedule "
-        "--schedule-cron='30 18 * * *' "
-        "--min-required-replicas=1 "
-        "--description='Scale up to 1 at 12:00 AM IST'"
-    )
-    run_command(up_schedule_cmd)
-
-    # Schedule to scale DOWN to 0 at 11:00 AM every day
-    down_schedule_cmd = (
-        f"gcloud compute instance-groups managed update-autoscaler {REGULAR_MIG} "
-        f"--region={REGION} "
-        "--update-schedule "
-        "schedule=gmail-parsing-pubsub-shutdown-schedule "
-        "--schedule-cron='30 10 * * *' "
-        "--min-required-replicas=0 "
-        "--description='Scale down to 0 at 11 AM IST'"
-    )
-    run_command(down_schedule_cmd)
-
 def main():
     build_and_push_image()
     delete_existing_migs()
     delete_existing_templates()
     create_instance_templates()
     create_instance_groups()
-    configure_autoscaler()
-    configure_autoscaler_schedule()
 
 if __name__ == "__main__":
 
