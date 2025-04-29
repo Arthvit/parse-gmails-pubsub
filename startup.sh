@@ -27,44 +27,28 @@ done
 
 # --- Configure Autoscaler using cron ---
 
-# Define variables (ensure these match your MIG and region)
+# Set variables
+REGION="asia-south1"
 REGULAR_MIG="email-service-regular-template-group-without-thread-v2"
 SPOT_MIG="email-service-spot-template-group-without-thread-v2"
-REGION="asia-south1"
 
-# Construct the gcloud command for autoscaler configuration
-REGULAR_AUTOSCALER_COMMAND_UP="gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG \
-    --region=$REGION \
-    --min-num-replicas=5 \
-    --max-num-replicas=5 \
-    --cool-down-period=3600 \
-    --mode=on"
-REGULAR_CRON_SCHEDULE_UP="0 0 * * * TZ='Asia/Kolkata' $REGULAR_AUTOSCALER_COMMAND_UP"
-(crontab -l 2>/dev/null; echo "$REGULAR_CRON_SCHEDULE_UP") | crontab -
+# --- Prepare cron entries ---
+CRON_JOBS=$(cat <<EOF
+# Regular MIG scale UP at 12 AM IST
+0 0 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=5 --max-num-replicas=5 --cool-down-period=3600 --mode=on >> /tmp/regular_up.log 2>&1
 
-REGULAR_AUTOSCALER_COMMAND_DOWN="gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG \
-    --region=$REGION \
-    --min-num-replicas=0 \
-    --max-num-replicas=0 \
-    --cool-down-period=3600 \
-    --mode=on"
-REGULAR_CRON_SCHEDULE_DOWN="0 12 * * * TZ='Asia/Kolkata' $REGULAR_AUTOSCALER_COMMAND_DOWN"
-(crontab -l 2>/dev/null; echo "$REGULAR_CRON_SCHEDULE_DOWN") | crontab -
+# Regular MIG scale DOWN at 10 AM IST
+0 10 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=3600 --mode=on >> /tmp/regular_down.log 2>&1
 
-SPOT_AUTOSCALER_COMMAND_UP="gcloud compute instance-groups managed set-autoscaling $SPOT_MIG \
-    --region=$REGION \
-    --min-num-replicas=15 \
-    --max-num-replicas=15 \
-    --cool-down-period=900 \
-    --mode=on"
-SPOT_CRON_SCHEDULE_UP="0 0 * * * TZ='Asia/Kolkata' $SPOT_AUTOSCALER_COMMAND_UP"
-(crontab -l 2>/dev/null; echo "$SPOT_CRON_SCHEDULE_UP") | crontab -
+# Spot MIG scale UP at 12 AM IST
+0 0 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=15 --max-num-replicas=15 --cool-down-period=900 --mode=on >> /tmp/spot_up.log 2>&1
 
-SPOT_AUTOSCALER_COMMAND_DOWN="gcloud compute instance-groups managed set-autoscaling $SPOT_MIG \
-    --region=$REGION \
-    --min-num-replicas=0 \
-    --max-num-replicas=0 \
-    --cool-down-period=900 \
-    --mode=on"
-SPOT_CRON_SCHEDULE_DOWN="0 12 * * * TZ='Asia/Kolkata' $SPOT_AUTOSCALER_COMMAND_DOWN"
-(crontab -l 2>/dev/null; echo "$SPOT_CRON_SCHEDULE_DOWN") | crontab -
+# Spot MIG scale DOWN at 10 AM IST
+0 10 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=900 --mode=on >> /tmp/spot_down.log 2>&1
+EOF
+)
+
+# --- Install new crontab ---
+( crontab -l 2>/dev/null; echo "$CRON_JOBS" ) | crontab -
+
+echo "✅ Crontab updated with autoscaler schedules."
