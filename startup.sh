@@ -35,16 +35,16 @@ SPOT_MIG="email-service-spot-template-group-without-thread-v2"
 # --- Prepare cron entries ---
 CRON_JOBS=$(cat <<EOF
 # Regular MIG scale UP at 12 AM IST
-0 0 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=5 --max-num-replicas=5 --cool-down-period=3600 --mode=on >> /tmp/regular_up.log 2>&1
+30 18 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=5 --max-num-replicas=5 --cool-down-period=3600 --mode=on >> /tmp/regular_up.log 2>&1
 
 # Regular MIG scale DOWN at 10 AM IST
-0 10 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=3600 --mode=on >> /tmp/regular_down.log 2>&1
+30 4 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=3600 --mode=on >> /tmp/regular_down.log 2>&1
 
 # Spot MIG scale UP at 12 AM IST
-0 0 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=15 --max-num-replicas=15 --cool-down-period=900 --mode=on >> /tmp/spot_up.log 2>&1
+30 18 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=15 --max-num-replicas=15 --cool-down-period=900 --mode=on >> /tmp/spot_up.log 2>&1
 
 # Spot MIG scale DOWN at 10 AM IST
-0 10 * * * . \$HOME/.bashrc; TZ='Asia/Kolkata' gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=900 --mode=on >> /tmp/spot_down.log 2>&1
+30 4 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=900 --mode=on >> /tmp/spot_down.log 2>&1
 EOF
 )
 
