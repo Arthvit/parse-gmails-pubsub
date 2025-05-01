@@ -38,13 +38,13 @@ CRON_JOBS=$(cat <<EOF
 30 18 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=5 --max-num-replicas=5 --cool-down-period=3600 --mode=on >> /tmp/regular_up.log 2>&1
 
 # Regular MIG scale DOWN at 10 AM IST
-30 4 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=3600 --mode=on >> /tmp/regular_down.log 2>&1
+30 6 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $REGULAR_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=3600 --mode=on >> /tmp/regular_down.log 2>&1
 
 # Spot MIG scale UP at 12 AM IST
 30 18 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=15 --max-num-replicas=15 --cool-down-period=900 --mode=on >> /tmp/spot_up.log 2>&1
 
 # Spot MIG scale DOWN at 10 AM IST
-30 4 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=900 --mode=on >> /tmp/spot_down.log 2>&1
+30 6 * * * . \$HOME/.bashrc; gcloud compute instance-groups managed set-autoscaling $SPOT_MIG --region=$REGION --min-num-replicas=0 --max-num-replicas=0 --cool-down-period=900 --mode=on >> /tmp/spot_down.log 2>&1
 EOF
 )
 
